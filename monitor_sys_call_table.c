@@ -22,6 +22,22 @@ unsigned long original_cr0;
 static unsigned long **p_sys_call_table;
 unsigned long syscall_address[MAX_ENTRIES];
 
+static void mykmod_work_handler(struct work_struct *w);
+
+static struct workqueue_struct *wq = 0;
+static DECLARE_DELAYED_WORK(mykmod_work, mykmod_work_handler);
+static unsigned long onesec;
+static int run_in_loop = 1;
+
+
+static void
+mykmod_work_handler(struct work_struct *w)
+{
+        pr_info("mykmod work %u jiffies\n", (unsigned)onesec);
+        if(run_in_loop && wq) {
+        	queue_delayed_work(wq, &mykmod_work, onesec);
+	}
+}
 
 asmlinkage int (*original_syscall)(void);
 
@@ -43,18 +59,6 @@ asmlinkage int custom_call(void){
 
 	return 0;
 }
-
-/*asmlinkage long (*ref_sys_read)(unsigned int fd, char __user *buf, size_t count);
-asmlinkage long new_sys_read(unsigned int fd, char __user *buf, size_t count)
-{
-	long ret;
-	ret = ref_sys_read(fd, buf, count);
-
-	if(count == 1 && fd == 0)
-		printk(KERN_INFO "intercept: 0x%02X", buf[0]);
-
-	return ret;
-}*/
 
 int __init init_module(void) 
 {
@@ -78,6 +82,14 @@ int __init init_module(void)
 	for(i = 0; i < MAX_ENTRIES; i++) {
 		syscall_address[i] = p_sys_call_table[i];
 	}
+
+	onesec = msecs_to_jiffies(1000);
+        pr_info("mykmod loaded %u jiffies\n", (unsigned)onesec);
+
+        if (!wq)
+                wq = create_singlethread_workqueue("mykmod");
+        if (wq)
+                queue_delayed_work(wq, &mykmod_work, onesec);
 	return 0;
 }
 
@@ -89,4 +101,10 @@ void cleanup_module(void)
 	write_cr0(original_cr0 & ~0x00010000);
 	p_sys_call_table[SYS_CALL_ENTRY] = (unsigned long *)original_syscall;
 	write_cr0(original_cr0);
+	run_in_loop = 0;
+
+	flush_workqueue(wq);
+        if (wq)
+            destroy_workqueue(wq);
+        pr_info("mykmod exit\n");
 }
