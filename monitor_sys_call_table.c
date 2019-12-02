@@ -29,16 +29,6 @@ static DECLARE_DELAYED_WORK(mykmod_work, mykmod_work_handler);
 static unsigned long onesec;
 static int run_in_loop = 1;
 
-
-static void
-mykmod_work_handler(struct work_struct *w)
-{
-        pr_info("mykmod work %u jiffies\n", (unsigned)onesec);
-        if(run_in_loop && wq) {
-        	queue_delayed_work(wq, &mykmod_work, onesec);
-	}
-}
-
 asmlinkage int (*original_syscall)(void);
 
 asmlinkage int custom_call(void){
@@ -58,6 +48,16 @@ asmlinkage int custom_call(void){
 	
 
 	return 0;
+}
+
+static void
+mykmod_work_handler(struct work_struct *w)
+{
+        pr_info("mykmod work %u jiffies\n", (unsigned)onesec);
+	custom_call();
+        if(run_in_loop && wq) {
+        	queue_delayed_work(wq, &mykmod_work, onesec);
+	}
 }
 
 int __init init_module(void) 
