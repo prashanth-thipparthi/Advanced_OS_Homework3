@@ -1,52 +1,42 @@
-#include <linux/init.h>
 #include <linux/module.h>
+#include <linux/kernel.h>
 #include <linux/workqueue.h>
-#include <linux/slab.h>
- 
-MODULE_LICENSE("Dual BSD/GPL");
- 
-#define printd() \
-    printk(KERN_ALERT "workqueue_test: %s %d\n", __FUNCTION__, __LINE__); 
- 
- 
-struct workqueue_struct *wq;
- 
-struct work_data {
-    struct work_struct work;
-    int data;
-};
- 
+
+static void mykmod_work_handler(struct work_struct *w);
+
+static struct workqueue_struct *wq = 0;
+static DECLARE_DELAYED_WORK(mykmod_work, mykmod_work_handler);
+static unsigned long onesec;
+
 static void
-work_handler(struct work_struct *work)
+mykmod_work_handler(struct work_struct *w)
 {
-    struct work_data * data = (struct work_data *)work;
-    printd();
-    kfree(data);
+        pr_info("mykmod work %u jiffies\n", (unsigned)onesec);
 }
- 
- 
-static int
-wq_init(void)
+
+
+static int __devinit mykmod_init(void)
 {
-    struct work_data * data;
- 
-    printd();
-    wq = create_workqueue("wq_test");
-    data = kmalloc(sizeof(struct work_data), GFP_KERNEL);
-    INIT_WORK(&data->work, work_handler);
-    queue_work(wq, &data->work);
- 
-    return 0;
+        onesec = msecs_to_jiffies(1000);
+        pr_info("mykmod loaded %u jiffies\n", (unsigned)onesec);
+
+        if (!wq)
+                wq = create_singlethread_workqueue("mykmod");
+        if (wq)
+                queue_delayed_work(wq, &mykmod_work, onesec);
+
+        return 0;
 }
- 
-static void
-wq_exit(void)
+
+static void __devexit mykmod_exit(void)
 {
-    printd();
-    flush_workqueue(wq);
-    destroy_workqueue(wq);
-    printd();
+        if (wq)
+                destroy_workqueue(wq);
+        pr_info("mykmod exit\n");
 }
- 
-module_init(wq_init);
-module_exit(wq_exit);
+
+module_init(mykmod_init);
+module_exit(mykmod_exit);
+
+MODULE_DESCRIPTION("mykmod");
+MODULE_LICENSE("GPL");
