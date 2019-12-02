@@ -15,7 +15,7 @@ mykmod_work_handler(struct work_struct *w)
 }
 
 
-static int __devinit mykmod_init(void)
+static int __init mykmod_init(void)
 {
         onesec = msecs_to_jiffies(1000);
         pr_info("mykmod loaded %u jiffies\n", (unsigned)onesec);
@@ -28,7 +28,7 @@ static int __devinit mykmod_init(void)
         return 0;
 }
 
-static void __devexit mykmod_exit(void)
+static void __exit mykmod_exit(void)
 {
         if (wq)
                 destroy_workqueue(wq);
