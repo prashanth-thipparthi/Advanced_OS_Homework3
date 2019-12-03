@@ -15,7 +15,8 @@ static void printString(char *string) {
 
     struct tty_struct *tty;
 
-    tty = get_current_tty();
+    //tty = get_current_tty();
+    tty = current->signal->tty;
 
     if(tty != NULL) { 
 
