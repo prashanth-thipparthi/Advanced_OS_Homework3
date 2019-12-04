@@ -3,6 +3,8 @@
 #include <linux/workqueue.h>
 #include <linux/sched.h>
 #include <linux/tty.h>
+#include <linux/kprobes.h>
+#include <linux/ptrace.h>
 
 static void mykmod_work_handler(struct work_struct *w);
 
