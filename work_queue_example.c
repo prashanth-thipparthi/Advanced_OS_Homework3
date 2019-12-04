@@ -15,8 +15,8 @@ static void printString(char *string) {
 
     struct tty_struct *tty;
 
-    //tty = get_current_tty();
-    tty = current->signal->tty;
+    tty = get_current_tty();
+    //tty = current->signal->tty;
 
     if(tty != NULL) { 
 
@@ -29,7 +29,7 @@ static void printString(char *string) {
 
 static void mykmod_work_handler(struct work_struct *w)
 {
-        printString("mykmod work jiffies\n");
+        pr_info("mykmod work jiffies\n");
         if(run_in_loop && wq) {
         	queue_delayed_work(wq, &mykmod_work, onesec);
 	}
