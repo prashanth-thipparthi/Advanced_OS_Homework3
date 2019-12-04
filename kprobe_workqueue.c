@@ -21,10 +21,10 @@ static struct kprobe kp;
 
 
 static void dump_state(struct pt_regs *regs) {
-    printk(KERN_INFO "EIP is at %s\n", regs->eip);
+    printk(KERN_INFO "EIP is at %s\n", regs->ip);
     printk(KERN_INFO "eax: %08lx ebx: %08lx ecx: %08lx edx: %08lx \n", regs->ax, regs->bx, regs->cx, regs->dx);
     printk(KERN_INFO "esi: %08lx edi: %08lx ebp: %08lx esp: %08lx\n", regs->si, regs->di, regs->bp, regs->sp);
-    printk(KERN_INFO "ds: %04x es: %04x\n", regs->ds & 0xffff, regs->es & 0xffff);
+    //printk(KERN_INFO "ds: %04x es: %04x\n", regs->ds & 0xffff, regs->es & 0xffff);
     printk(KERN_INFO "Process %s (pid: %d, threadinfo=%p task=%p)", current->comm, current->pid,current_thread_info(), current);
 }
 
