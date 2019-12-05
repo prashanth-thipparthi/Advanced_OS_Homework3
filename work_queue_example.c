@@ -53,6 +53,8 @@ static int __init mykmod_init(void)
 static void __exit mykmod_exit(void)
 {
 	run_in_loop = 0;
+ 	cancel_delayed_work(&mykmod_work);
+        flush_workqueue(wq);
         if (wq)
                 destroy_workqueue(wq);
         pr_info("mykmod exit\n");
