@@ -1,0 +1,6 @@
+# Advanced_OS_Homework3
+Operating Systems Homework 3  
+The goal of this homework is to get familiar with Linux Kernel Modules as well as some kernel debugging tools.  
+Detailed write up [link](https://github.com/prashanth-thipparthi/Advanced_OS_Homework3/blob/master/Fa19_%20Homework_3.pdf "Title").
+1. In Homework Two, you built a kernel module that can identify all system calls that are being intercepted as well as all new system calls introduced in the kernel after your new kernel module was installed in the kernel. This kernel module runs only when you explicitly invoke it. Now, modify this kernel module so that it periodically checks for any changes in the system call table (no explicit invocation required) and prints out a message on the same tty from which the module was loaded. The output message is either “No changes have occurred in the system call table” or “System call table has been changed”.  
+2. Write a kernel probe for your kernel module in problem one that dumps the current state of your module before and after a specific instruction of the module is executed. You can choose any instruction of your module to trap. The dumped state should include information such as current values of some registers, process ids, etc.  
